@@ -1,0 +1,23 @@
+node_modules/
+build/
+coverage/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Local agent/workspace metadata
+.agents/
+.codex/
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

@@ -1,0 +1,121 @@
+import type { Place } from "../types.js";
+
+export const places: Place[] = [
+  {
+    id: "seoul-forest-gallery-cafe",
+    name: "서울숲 인근 전시형 카페",
+    areaKey: "seoul-forest",
+    type: "cafe",
+    isIndoor: true,
+    goodFor: ["solo", "date", "friends", "child"],
+    minDurationMinutes: 45,
+    typicalDurationMinutes: 80,
+    costLevel: "LOW",
+    transitFriction: "LOW",
+    notes: ["비 오는 날 대기 장소로 좋음", "짧은 일정에 맞추기 쉬움"]
+  },
+  {
+    id: "seoul-forest-short-walk",
+    name: "서울숲 짧은 산책",
+    areaKey: "seoul-forest",
+    type: "park",
+    isIndoor: false,
+    goodFor: ["solo", "date", "friends", "family", "child", "parents"],
+    minDurationMinutes: 40,
+    typicalDurationMinutes: 70,
+    costLevel: "FREE",
+    transitFriction: "LOW",
+    notes: ["날씨가 좋으면 만족도가 높음", "유모차 동선이 비교적 편함"]
+  },
+  {
+    id: "hongdae-small-performance",
+    name: "홍대 소규모 공연/전시",
+    areaKey: "hongdae",
+    type: "event",
+    isIndoor: true,
+    goodFor: ["date", "friends", "solo"],
+    minDurationMinutes: 60,
+    typicalDurationMinutes: 100,
+    costLevel: "MEDIUM",
+    transitFriction: "MEDIUM",
+    notes: ["저녁 일정에 잘 맞음", "혼잡 시간대에는 이동 피로가 큼"]
+  },
+  {
+    id: "yeouido-riverside",
+    name: "여의도 한강공원",
+    areaKey: "yeouido",
+    type: "park",
+    isIndoor: false,
+    goodFor: ["date", "friends", "family", "child"],
+    minDurationMinutes: 60,
+    typicalDurationMinutes: 120,
+    costLevel: "FREE",
+    transitFriction: "MEDIUM",
+    notes: ["날씨 영향을 크게 받음", "행사일에는 혼잡도가 크게 오름"]
+  },
+  {
+    id: "yeouido-indoor-mall",
+    name: "여의도 실내몰 코스",
+    areaKey: "yeouido",
+    type: "mall",
+    isIndoor: true,
+    goodFor: ["solo", "date", "friends", "family", "parents"],
+    minDurationMinutes: 70,
+    typicalDurationMinutes: 120,
+    costLevel: "MEDIUM",
+    transitFriction: "MEDIUM",
+    notes: ["비 오는 날 대체안으로 좋음", "주말에는 대기 시간이 길 수 있음"]
+  },
+  {
+    id: "jamsil-indoor-loop",
+    name: "잠실 실내몰 순환 코스",
+    areaKey: "jamsil",
+    type: "mall",
+    isIndoor: true,
+    goodFor: ["date", "friends", "family", "child", "parents"],
+    minDurationMinutes: 90,
+    typicalDurationMinutes: 150,
+    costLevel: "MEDIUM",
+    transitFriction: "MEDIUM",
+    notes: ["비 오는 날 안정적", "아이 동반 편의시설이 많음"]
+  },
+  {
+    id: "jamsil-lake-walk",
+    name: "석촌호수 짧은 산책",
+    areaKey: "jamsil",
+    type: "walk",
+    isIndoor: false,
+    goodFor: ["solo", "date", "friends", "parents"],
+    minDurationMinutes: 40,
+    typicalDurationMinutes: 80,
+    costLevel: "FREE",
+    transitFriction: "LOW",
+    notes: ["맑은 날 짧게 걷기 좋음", "행사 기간에는 혼잡"]
+  },
+  {
+    id: "gwanghwamun-museum",
+    name: "광화문 실내 전시 코스",
+    areaKey: "gwanghwamun",
+    type: "museum",
+    isIndoor: true,
+    goodFor: ["solo", "date", "friends", "family", "child", "parents"],
+    minDurationMinutes: 60,
+    typicalDurationMinutes: 100,
+    costLevel: "LOW",
+    transitFriction: "LOW",
+    notes: ["날씨 영향을 적게 받음", "대중교통 접근성이 좋음"]
+  },
+  {
+    id: "gwanghwamun-heritage",
+    name: "광화문 역사 산책",
+    areaKey: "gwanghwamun",
+    type: "heritage",
+    isIndoor: false,
+    goodFor: ["solo", "date", "friends", "family", "parents"],
+    minDurationMinutes: 50,
+    typicalDurationMinutes: 90,
+    costLevel: "FREE",
+    transitFriction: "LOW",
+    notes: ["공공 문화행사와 묶기 좋음", "비가 오면 실내 전시로 대체 권장"]
+  }
+];

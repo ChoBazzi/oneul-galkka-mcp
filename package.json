@@ -1,0 +1,36 @@
+{
+  "name": "oneul-galkka-mcp",
+  "version": "0.1.0",
+  "description": "MCP server recommending Seoul outing plans using live city context and public-data-friendly seed data.",
+  "type": "module",
+  "bin": {
+    "oneul-galkka-mcp": "./build/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/server.ts",
+    "dev:http": "tsx src/httpServer.ts",
+    "start": "node build/server.js",
+    "start:http": "node build/httpServer.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^20.14.0",
+    "node-mocks-http": "^1.17.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0",
+    "vitest": "^4.1.9"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "build"
+  ]
+}
