@@ -1,6 +1,7 @@
 node_modules/
 build/
 coverage/
+tmp/
 
 # Local environment
 .env

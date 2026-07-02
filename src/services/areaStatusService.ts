@@ -2,7 +2,7 @@ import { areaStatuses } from "../data/areas.js";
 import type { AreaKey, AreaStatus } from "../types.js";
 import { SeoulOpenDataClient, type SeoulCityDataArea } from "./seoulOpenDataClient.js";
 
-const seoulCityDataAreas: Record<AreaKey, SeoulCityDataArea> = {
+export const seoulCityDataAreas: Record<AreaKey, SeoulCityDataArea> = {
   "seoul-forest": {
     providerAreaName: "서울숲공원"
   },
@@ -42,6 +42,13 @@ export function listAreaStatuses(): AreaStatus[] {
 
 export function listSupportedAreaNames(): string[] {
   return areaStatuses.map((area) => area.areaName);
+}
+
+export function listSeoulCityDataAreas(): Array<AreaStatus & SeoulCityDataArea> {
+  return areaStatuses.map((area) => ({
+    ...area,
+    ...seoulCityDataAreas[area.areaKey]
+  }));
 }
 
 export interface ResolveAreaStatusOptions {

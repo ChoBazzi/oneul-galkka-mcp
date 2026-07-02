@@ -13,6 +13,7 @@
     "start": "node build/server.js",
     "start:http": "node build/httpServer.js",
     "test": "vitest run",
+    "test:live": "node --env-file=.env ./node_modules/vitest/vitest.mjs run tests/seoulOpenDataLive.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

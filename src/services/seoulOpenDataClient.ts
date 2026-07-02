@@ -1,6 +1,6 @@
 import type { AirQuality, AreaStatus, CrowdLevel, TransitFriction, WeatherCondition } from "../types.js";
 
-interface SeoulCityDataResponse {
+export interface SeoulCityDataResponse {
   RESULT?: {
     "RESULT.CODE"?: string;
     "RESULT.MESSAGE"?: string;
@@ -11,6 +11,8 @@ interface SeoulCityDataResponse {
     LIVE_PPLTN_STTS?: Array<{
       AREA_CONGEST_LVL?: string;
       AREA_CONGEST_MSG?: string;
+      AREA_PPLTN_MIN?: string;
+      AREA_PPLTN_MAX?: string;
       PPLTN_TIME?: string;
     }>;
     ROAD_TRAFFIC_STTS?: {
@@ -23,15 +25,25 @@ interface SeoulCityDataResponse {
     WEATHER_STTS?: Array<{
       WEATHER_TIME?: string;
       TEMP?: string;
+      HUMIDITY?: string;
       PRECPT_TYPE?: string;
       PCP_MSG?: string;
       SKY_STTS?: string;
+      RAIN_CHANCE?: string;
       PM25_INDEX?: string;
+      PM25?: string;
       PM10_INDEX?: string;
+      PM10?: string;
       AIR_IDX?: string;
       AIR_MSG?: string;
     }>;
-    EVENT_STTS?: unknown[];
+    EVENT_STTS?: Array<{
+      EVENT_NM?: string;
+      EVENT_PERIOD?: string;
+      EVENT_PLACE?: string;
+      PAY_YN?: string | null;
+      URL?: string;
+    }>;
   };
 }
 
@@ -45,6 +57,45 @@ export interface SeoulOpenDataConfig {
 export interface SeoulCityDataArea {
   providerAreaName: string;
   providerAreaCode?: string;
+}
+
+export interface SeoulCityDataSnapshot {
+  providerAreaName?: string;
+  providerAreaCode?: string;
+  resultCode?: string;
+  resultMessage?: string;
+  population?: {
+    congestionLevel?: string;
+    message?: string;
+    min?: string;
+    max?: string;
+    updatedAt?: string;
+  };
+  roadTraffic?: {
+    index?: string;
+    message?: string;
+    updatedAt?: string;
+  };
+  weather?: {
+    updatedAt?: string;
+    temperature?: string;
+    humidity?: string;
+    precipitationType?: string;
+    precipitationMessage?: string;
+    skyStatus?: string;
+    airIndex?: string;
+    pm10Index?: string;
+    pm10?: string;
+    pm25Index?: string;
+    pm25?: string;
+  };
+  events: Array<{
+    name?: string;
+    period?: string;
+    place?: string;
+    isFree?: boolean;
+    url?: string;
+  }>;
 }
 
 function encodePathSegment(value: string): string {
@@ -152,6 +203,18 @@ export class SeoulOpenDataClient {
   }
 
   async fetchAreaStatus(seed: AreaStatus, area: SeoulCityDataArea): Promise<AreaStatus> {
+    const body = await this.fetchCityData(area);
+
+    return mapCityDataToAreaStatus(seed, area.providerAreaName, body);
+  }
+
+  async fetchAreaSnapshot(area: SeoulCityDataArea): Promise<SeoulCityDataSnapshot> {
+    const body = await this.fetchCityData(area);
+
+    return mapCityDataToSnapshot(body);
+  }
+
+  private async fetchCityData(area: SeoulCityDataArea): Promise<SeoulCityDataResponse> {
     if (!this.apiKey) {
       throw new Error("SEOUL_OPEN_DATA_API_KEY is not configured.");
     }
@@ -179,11 +242,64 @@ export class SeoulOpenDataClient {
         throw new Error(body.RESULT?.["RESULT.MESSAGE"] ?? `Seoul Open Data result code ${resultCode}.`);
       }
 
-      return mapCityDataToAreaStatus(seed, area.providerAreaName, body);
+      return body;
     } finally {
       clearTimeout(timeout);
     }
   }
+}
+
+export function mapCityDataToSnapshot(response: SeoulCityDataResponse): SeoulCityDataSnapshot {
+  const cityData = response.CITYDATA;
+  const population = cityData?.LIVE_PPLTN_STTS?.[0];
+  const road = cityData?.ROAD_TRAFFIC_STTS?.AVG_ROAD_DATA;
+  const weather = cityData?.WEATHER_STTS?.[0];
+  const events = cityData?.EVENT_STTS ?? [];
+
+  return {
+    providerAreaName: cityData?.AREA_NM,
+    providerAreaCode: cityData?.AREA_CD,
+    resultCode: response.RESULT?.["RESULT.CODE"],
+    resultMessage: response.RESULT?.["RESULT.MESSAGE"],
+    population: population
+      ? {
+          congestionLevel: population.AREA_CONGEST_LVL,
+          message: population.AREA_CONGEST_MSG,
+          min: population.AREA_PPLTN_MIN,
+          max: population.AREA_PPLTN_MAX,
+          updatedAt: population.PPLTN_TIME
+        }
+      : undefined,
+    roadTraffic: road
+      ? {
+          index: road.ROAD_TRAFFIC_IDX,
+          message: road.ROAD_MSG,
+          updatedAt: road.ROAD_TRAFFIC_TIME
+        }
+      : undefined,
+    weather: weather
+      ? {
+          updatedAt: weather.WEATHER_TIME,
+          temperature: weather.TEMP,
+          humidity: weather.HUMIDITY,
+          precipitationType: weather.PRECPT_TYPE,
+          precipitationMessage: weather.PCP_MSG,
+          skyStatus: weather.SKY_STTS,
+          airIndex: weather.AIR_IDX,
+          pm10Index: weather.PM10_INDEX,
+          pm10: weather.PM10,
+          pm25Index: weather.PM25_INDEX,
+          pm25: weather.PM25
+        }
+      : undefined,
+    events: events.slice(0, 5).map((event) => ({
+      name: event.EVENT_NM,
+      period: event.EVENT_PERIOD,
+      place: event.EVENT_PLACE,
+      isFree: event.PAY_YN === "N",
+      url: event.URL
+    }))
+  };
 }
 
 export function mapCityDataToAreaStatus(
