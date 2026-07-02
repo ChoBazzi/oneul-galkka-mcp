@@ -116,6 +116,14 @@ function toStop(candidate: PlaceCandidate) {
   };
 }
 
+function liveEventReason(areaStatus: AreaStatus): string | undefined {
+  if (areaStatus.liveEventCount <= 0) {
+    return undefined;
+  }
+
+  return `실시간 문화행사 ${areaStatus.liveEventCount}개 확인`;
+}
+
 export function recommendOutingPlans(input: RecommendationInput): OutingPlan[] {
   const constraints = input.constraints ?? [];
   const wantsIndoor =
@@ -152,7 +160,13 @@ export function recommendOutingPlans(input: RecommendationInput): OutingPlan[] {
       );
 
       const warnings = [...new Set(areaCandidates.flatMap((candidate) => candidate.warnings))].slice(0, 4);
-      const reasons = [...new Set(areaCandidates.flatMap((candidate) => candidate.reasons))].slice(0, 5);
+      const eventReason = liveEventReason(primary.areaStatus);
+      const reasonCandidates = [
+        ...(eventReason ? [eventReason] : []),
+        ...areaCandidates.flatMap((candidate) => candidate.reasons)
+      ];
+      const reasons = [...new Set(reasonCandidates)].slice(0, 5);
+      const liveEvents = primary.areaStatus.liveEvents?.slice(0, 3);
 
       return {
         title: `${primary.areaStatus.areaName} ${primary.place.isIndoor ? "실내 중심" : "가벼운 외출"} 코스`,
@@ -161,6 +175,7 @@ export function recommendOutingPlans(input: RecommendationInput): OutingPlan[] {
         score: Math.round(areaCandidates.reduce((sum, candidate) => sum + candidate.score, 0) / areaCandidates.length),
         summary: `${primary.areaStatus.areaName}은 현재 혼잡도 ${primary.areaStatus.crowdLevel}, 대중교통 부담 ${primary.areaStatus.transitFriction}입니다.`,
         stops,
+        liveEvents,
         reasons,
         warnings
       };

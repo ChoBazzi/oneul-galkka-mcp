@@ -1,4 +1,12 @@
-import type { AirQuality, AreaStatus, CrowdLevel, TransitFriction, WeatherCondition } from "../types.js";
+import type { AirQuality, AreaStatus, CrowdLevel, LiveEvent, TransitFriction, WeatherCondition } from "../types.js";
+
+interface SeoulEventStatus {
+  EVENT_NM?: string;
+  EVENT_PERIOD?: string;
+  EVENT_PLACE?: string;
+  PAY_YN?: string | null;
+  URL?: string;
+}
 
 export interface SeoulCityDataResponse {
   RESULT?: {
@@ -37,13 +45,7 @@ export interface SeoulCityDataResponse {
       AIR_IDX?: string;
       AIR_MSG?: string;
     }>;
-    EVENT_STTS?: Array<{
-      EVENT_NM?: string;
-      EVENT_PERIOD?: string;
-      EVENT_PLACE?: string;
-      PAY_YN?: string | null;
-      URL?: string;
-    }>;
+    EVENT_STTS?: SeoulEventStatus[];
   };
 }
 
@@ -182,6 +184,35 @@ function latestUpdatedAt(
   return weatherTime ?? roadTime ?? populationTime ?? new Date().toISOString();
 }
 
+function mapPaymentFlag(value: string | null | undefined): boolean | undefined {
+  if (value === "N") {
+    return true;
+  }
+
+  if (value === "Y") {
+    return false;
+  }
+
+  return undefined;
+}
+
+function mapEvents(events: SeoulEventStatus[] | undefined): LiveEvent[] {
+  if (!events) {
+    return [];
+  }
+
+  return events
+    .filter((event) => Boolean(event.EVENT_NM))
+    .slice(0, 5)
+    .map((event) => ({
+      name: event.EVENT_NM!,
+      period: event.EVENT_PERIOD,
+      place: event.EVENT_PLACE,
+      isFree: mapPaymentFlag(event.PAY_YN),
+      url: event.URL
+    }));
+}
+
 export class SeoulOpenDataClient {
   private readonly apiKey?: string;
   private readonly baseUrl: string;
@@ -254,7 +285,7 @@ export function mapCityDataToSnapshot(response: SeoulCityDataResponse): SeoulCit
   const population = cityData?.LIVE_PPLTN_STTS?.[0];
   const road = cityData?.ROAD_TRAFFIC_STTS?.AVG_ROAD_DATA;
   const weather = cityData?.WEATHER_STTS?.[0];
-  const events = cityData?.EVENT_STTS ?? [];
+  const events = mapEvents(cityData?.EVENT_STTS);
 
   return {
     providerAreaName: cityData?.AREA_NM,
@@ -292,13 +323,7 @@ export function mapCityDataToSnapshot(response: SeoulCityDataResponse): SeoulCit
           pm25: weather.PM25
         }
       : undefined,
-    events: events.slice(0, 5).map((event) => ({
-      name: event.EVENT_NM,
-      period: event.EVENT_PERIOD,
-      place: event.EVENT_PLACE,
-      isFree: event.PAY_YN === "N",
-      url: event.URL
-    }))
+    events
   };
 }
 
@@ -323,6 +348,7 @@ export function mapCityDataToAreaStatus(
     airQuality: mapAirQuality(weather),
     transitFriction: mapTransitFriction(road?.ROAD_TRAFFIC_IDX),
     liveEventCount: cityData.EVENT_STTS?.length ?? 0,
+    liveEvents: mapEvents(cityData.EVENT_STTS),
     updatedAt: latestUpdatedAt(population?.PPLTN_TIME, road?.ROAD_TRAFFIC_TIME, weather.WEATHER_TIME),
     source: "seoul_open_data",
     dataProviderAreaName: cityData.AREA_NM ?? providerAreaName,

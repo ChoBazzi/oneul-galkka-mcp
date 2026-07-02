@@ -50,4 +50,38 @@ describe("Seoul Open Data mapping", () => {
     expect(status.updatedAt).toBe("2026-07-02 18:11");
     expect(status.dataProviderAreaCode).toBe("POI009");
   });
+
+  it("maps live event details for recommendation context", () => {
+    const status = mapCityDataToAreaStatus(areaStatuses[4], "광화문·덕수궁", {
+      RESULT: {
+        "RESULT.CODE": "INFO-000",
+        "RESULT.MESSAGE": "정상 처리되었습니다."
+      },
+      CITYDATA: {
+        AREA_NM: "광화문·덕수궁",
+        EVENT_STTS: [
+          {
+            EVENT_NM: "서울 문화의 밤",
+            EVENT_PERIOD: "2026-07-02~2026-07-05",
+            EVENT_PLACE: "세종문화회관",
+            PAY_YN: "N",
+            URL: "https://example.com/event"
+          },
+          {
+            EVENT_PERIOD: "이름 없는 행사는 제외"
+          }
+        ]
+      }
+    });
+
+    expect(status.liveEvents).toEqual([
+      {
+        name: "서울 문화의 밤",
+        period: "2026-07-02~2026-07-05",
+        place: "세종문화회관",
+        isFree: true,
+        url: "https://example.com/event"
+      }
+    ]);
+  });
 });

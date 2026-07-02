@@ -12,6 +12,14 @@ export type Companion = "solo" | "date" | "friends" | "family" | "child" | "pare
 
 export type PlaceType = "park" | "museum" | "cafe" | "mall" | "walk" | "event" | "heritage";
 
+export interface LiveEvent {
+  name: string;
+  period?: string;
+  place?: string;
+  isFree?: boolean;
+  url?: string;
+}
+
 export interface AreaStatus {
   areaKey: AreaKey;
   areaName: string;
@@ -21,6 +29,7 @@ export interface AreaStatus {
   airQuality: AirQuality;
   transitFriction: TransitFriction;
   liveEventCount: number;
+  liveEvents?: LiveEvent[];
   updatedAt: string;
   source: "seed" | "seoul_open_data";
   dataProviderAreaName?: string;
@@ -64,6 +73,7 @@ export interface OutingPlan {
     durationMinutes: number;
     reason: string;
   }>;
+  liveEvents?: LiveEvent[];
   reasons: string[];
   warnings: string[];
 }

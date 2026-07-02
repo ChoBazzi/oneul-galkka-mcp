@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { areaStatuses } from "../src/data/areas.js";
 import { findGoodPlacesNow, recommendOutingPlans } from "../src/recommendation/planBuilder.js";
+import type { AreaStatus } from "../src/types.js";
 
 describe("outing recommendations", () => {
   it("prioritizes low-crowd indoor plans when the user wants to avoid crowds in rain", () => {
@@ -65,5 +67,45 @@ describe("outing recommendations", () => {
 
     expect(nearOrigin[0].score).toBeGreaterThan(farOrigin[0].score);
     expect(nearOrigin[0].reasons.join(" ")).toContain("출발 권역");
+  });
+
+  it("includes live event details in outing plans when Seoul data provides them", () => {
+    const liveStatuses: AreaStatus[] = areaStatuses.map((status) =>
+      status.areaKey === "gwanghwamun"
+        ? {
+            ...status,
+            liveEventCount: 2,
+            liveEvents: [
+              {
+                name: "서울 문화의 밤",
+                period: "2026-07-02~2026-07-05",
+                place: "세종문화회관",
+                isFree: true,
+                url: "https://example.com/event"
+              }
+            ],
+            source: "seoul_open_data"
+          }
+        : status
+    );
+
+    const plans = recommendOutingPlans({
+      originArea: "성수",
+      targetArea: "광화문",
+      companion: "date",
+      durationHours: 2,
+      areaStatuses: liveStatuses
+    });
+
+    expect(plans[0].liveEvents).toEqual([
+      {
+        name: "서울 문화의 밤",
+        period: "2026-07-02~2026-07-05",
+        place: "세종문화회관",
+        isFree: true,
+        url: "https://example.com/event"
+      }
+    ]);
+    expect(plans[0].reasons.join(" ")).toContain("실시간 문화행사 2개 확인");
   });
 });
