@@ -19,10 +19,12 @@ Working product name: `오늘갈까 MCP`.
 - `@modelcontextprotocol/sdk` v1.x
 - Zod v3 for tool input validation
 - Vitest for unit tests
+- Seoul Open Data Plaza real-time city data API
 
 ## Commands
 
 - Install: `npm install`
+- Configure env: `cp .env.example .env`
 - Build: `npm run build`
 - Test: `npm test`
 - Typecheck: `npm run typecheck`
@@ -100,4 +102,9 @@ Output:
 
 ## Public Data Plan
 
-Phase 1 uses seed data shaped like public data responses. Phase 2 should connect adapters to Seoul Open Data Plaza APIs, especially Seoul Real-time City Data, which provides major-place crowd, transport, weather/environment, and event context.
+The server reads `SEOUL_OPEN_DATA_API_KEY` from the environment. When configured, it calls Seoul Open Data Plaza's real-time city data API for each supported area. If the key is missing or an upstream request fails, the server falls back to deterministic seed data and marks the response as `source: "seed"`.
+
+Official dataset notes used for the adapter:
+- 서울시 실시간 도시데이터 provides real-time population, road traffic, parking, subway arrivals, bus stops, accident/control, bike, weather, EV charger, and culture event status.
+- The API can query one Seoul place per call.
+- The API accepts either place name or place code.

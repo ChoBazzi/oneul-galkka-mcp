@@ -23,6 +23,11 @@ export interface AreaStatus {
   liveEventCount: number;
   updatedAt: string;
   source: "seed" | "seoul_open_data";
+  dataProviderAreaName?: string;
+  dataProviderAreaCode?: string;
+  statusMessage?: string;
+  weatherMessage?: string;
+  transitMessage?: string;
 }
 
 export interface Place {
@@ -70,4 +75,5 @@ export interface RecommendationInput {
   durationHours: number;
   mood?: string;
   constraints?: string[];
+  areaStatuses?: AreaStatus[];
 }

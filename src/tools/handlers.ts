@@ -1,4 +1,9 @@
-import { findAreaStatus, listSupportedAreaNames } from "../services/areaStatusService.js";
+import {
+  findAreaStatus,
+  listSupportedAreaNames,
+  resolveAreaStatus,
+  resolveAreaStatuses
+} from "../services/areaStatusService.js";
 import { findGoodPlacesNow, recommendOutingPlans, type FindCandidatesInput } from "../recommendation/planBuilder.js";
 import type { RecommendationInput } from "../types.js";
 
@@ -24,8 +29,8 @@ function unsupportedAreaResponse(areaName: string, field: "areaName" | "originAr
   });
 }
 
-export function handleGetAreaStatus(input: { areaName: string }) {
-  const status = findAreaStatus(input.areaName);
+export async function handleGetAreaStatus(input: { areaName: string }) {
+  const status = await resolveAreaStatus(input.areaName);
 
   if (!status) {
     return unsupportedAreaResponse(input.areaName, "areaName");
@@ -41,7 +46,7 @@ export function handleGetAreaStatus(input: { areaName: string }) {
   });
 }
 
-export function handleFindGoodPlacesNow(input: FindCandidatesInput) {
+export async function handleFindGoodPlacesNow(input: FindCandidatesInput) {
   if (!findAreaStatus(input.originArea)) {
     return unsupportedAreaResponse(input.originArea, "originArea");
   }
@@ -50,7 +55,11 @@ export function handleFindGoodPlacesNow(input: FindCandidatesInput) {
     return unsupportedAreaResponse(input.targetArea, "targetArea");
   }
 
-  const candidates = findGoodPlacesNow(input).map((candidate) => ({
+  const liveStatuses = await resolveAreaStatuses(input.targetArea ? [input.targetArea] : undefined);
+  const candidates = findGoodPlacesNow({
+    ...input,
+    areaStatuses: liveStatuses
+  }).map((candidate) => ({
     name: candidate.place.name,
     areaName: candidate.areaStatus.areaName,
     score: candidate.score,
@@ -59,6 +68,8 @@ export function handleFindGoodPlacesNow(input: FindCandidatesInput) {
     costLevel: candidate.place.costLevel,
     crowdLevel: candidate.areaStatus.crowdLevel,
     transitFriction: candidate.areaStatus.transitFriction,
+    source: candidate.areaStatus.source,
+    updatedAt: candidate.areaStatus.updatedAt,
     reasons: candidate.reasons,
     warnings: candidate.warnings
   }));
@@ -70,7 +81,7 @@ export function handleFindGoodPlacesNow(input: FindCandidatesInput) {
   });
 }
 
-export function handleRecommendOutingPlan(input: RecommendationInput) {
+export async function handleRecommendOutingPlan(input: RecommendationInput) {
   if (!findAreaStatus(input.originArea)) {
     return unsupportedAreaResponse(input.originArea, "originArea");
   }
@@ -79,7 +90,11 @@ export function handleRecommendOutingPlan(input: RecommendationInput) {
     return unsupportedAreaResponse(input.targetArea, "targetArea");
   }
 
-  const plans = recommendOutingPlans(input);
+  const liveStatuses = await resolveAreaStatuses(input.targetArea ? [input.targetArea] : undefined);
+  const plans = recommendOutingPlans({
+    ...input,
+    areaStatuses: liveStatuses
+  });
 
   return asTextJson({
     ok: true,

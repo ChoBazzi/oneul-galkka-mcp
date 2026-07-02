@@ -1,6 +1,6 @@
 import { places } from "../data/places.js";
 import { findAreaStatus, listAreaStatuses } from "../services/areaStatusService.js";
-import type { Companion, OutingPlan, PlaceCandidate, RecommendationInput } from "../types.js";
+import type { AreaStatus, Companion, OutingPlan, PlaceCandidate, RecommendationInput } from "../types.js";
 import { scorePlace, type ScoreOptions } from "./scoring.js";
 
 export interface FindCandidatesInput {
@@ -11,6 +11,7 @@ export interface FindCandidatesInput {
   indoorPreferred: boolean;
   targetArea?: string;
   constraints?: string[];
+  areaStatuses?: AreaStatus[];
 }
 
 const travelPenaltyByOrigin: Record<string, Partial<Record<string, number>>> = {
@@ -79,7 +80,10 @@ function applyOriginAdjustment(candidate: PlaceCandidate, originArea: string): P
 
 function buildCandidatePool(input: FindCandidatesInput): PlaceCandidate[] {
   const targetStatus = input.targetArea ? findAreaStatus(input.targetArea) : undefined;
-  const statuses = targetStatus ? [targetStatus] : listAreaStatuses();
+  const availableStatuses = input.areaStatuses ?? listAreaStatuses();
+  const statuses = targetStatus
+    ? availableStatuses.filter((status) => status.areaKey === targetStatus.areaKey)
+    : availableStatuses;
   const statusByKey = new Map(statuses.map((status) => [status.areaKey, status]));
 
   const options: ScoreOptions = {
@@ -126,7 +130,8 @@ export function recommendOutingPlans(input: RecommendationInput): OutingPlan[] {
     durationHours: input.durationHours,
     avoidCrowd: true,
     indoorPreferred: wantsIndoor,
-    constraints
+    constraints,
+    areaStatuses: input.areaStatuses
   });
 
   const grouped = new Map<string, PlaceCandidate[]>();

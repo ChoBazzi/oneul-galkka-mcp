@@ -27,9 +27,12 @@ It is designed for Kakao Tools / PlayMCP style agent usage: the AI asks this ser
 
 ```bash
 npm install
+cp .env.example .env
 npm test
 npm run build
 ```
+
+Set `SEOUL_OPEN_DATA_API_KEY` in `.env` to enable live Seoul Open Data responses. Without a key, the server uses seed fallback data.
 
 Run local STDIO MCP mode:
 
@@ -138,13 +141,17 @@ curl http://localhost:8080/health
 
 ## Public Data Roadmap
 
-The MVP currently uses seed data shaped like public data responses. The next implementation slice should connect:
+The MVP uses Seoul Open Data when `SEOUL_OPEN_DATA_API_KEY` is configured, and falls back to seed data when the key is missing or the upstream request fails.
 
-- Seoul Real-time City Data: crowd, transport, weather/environment, events
-- Seoul cultural event data
+Currently connected:
+
+- Seoul Real-time City Data: crowd, road traffic, weather/environment, event count
+
+Potential next integrations:
+
+- Rich Seoul cultural event details
 - Optional weather/air-quality fallback APIs
-
-The recommendation engine is already isolated from data adapters, so live API integration should replace `src/services/areaStatusService.ts` and add event/place adapter services without changing MCP tool contracts.
+- Area mapping expansion beyond the initial five Seoul areas
 
 ## Safety Notes
 

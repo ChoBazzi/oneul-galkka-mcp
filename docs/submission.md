@@ -46,13 +46,13 @@
 
 - TypeScript MCP server implemented.
 - STDIO and Streamable HTTP modes implemented.
-- Seed fallback data for five Seoul areas implemented.
+- Seoul Open Data live adapter implemented with seed fallback for five Seoul areas.
 - Unit tests cover scoring behavior, tool handlers, and HTTP route surface.
 - Unsupported areas return explicit `UNSUPPORTED_AREA` responses instead of unrelated fallback recommendations.
 
 ## Next Work
 
-1. Connect Seoul Open Data Plaza real-time city data adapter.
-2. Add live event adapter for supported areas.
-3. Add Docker/KakaoCloud deployment configuration values.
-4. Run PlayMCP registration smoke test.
+1. Add richer live event details into recommendations.
+2. Add Docker/KakaoCloud deployment configuration values.
+3. Run PlayMCP registration smoke test.
+4. Expand supported Seoul areas after validating official place names/codes.
