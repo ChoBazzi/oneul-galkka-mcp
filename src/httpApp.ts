@@ -11,9 +11,10 @@ export interface HttpAppOptions {
 
 export function createHttpApp(options: HttpAppOptions = {}) {
   const endpointPath = options.endpointPath ?? "/mcp";
+  const allowedHosts = options.allowedHosts?.length ? options.allowedHosts : undefined;
   const app = createMcpExpressApp({
     host: options.host ?? "127.0.0.1",
-    allowedHosts: options.allowedHosts
+    allowedHosts
   });
 
   app.get("/health", (_req: Request, res: Response) => {

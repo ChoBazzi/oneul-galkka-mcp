@@ -56,4 +56,18 @@ describe("HTTP MCP endpoint", () => {
       service: "oneul-galkka-mcp"
     });
   });
+
+  it("treats an empty allowed-host list as no explicit restriction", async () => {
+    const app = createHttpApp({ host: "0.0.0.0", allowedHosts: [] });
+
+    const response = await handleRequest(app, {
+      method: "GET",
+      url: "/health",
+      headers: {
+        host: "localhost"
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+  });
 });
