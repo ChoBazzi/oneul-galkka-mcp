@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { registerTools } from "../src/tools/registerTools.js";
 import { handleGetAreaStatus, handleRecommendOutingPlan } from "../src/tools/handlers.js";
 
 async function parseToolText(result: Promise<{ content: Array<{ type: "text"; text: string }> }>) {
@@ -61,5 +63,41 @@ describe("tool handlers", () => {
     expect(result.ok).toBe(false);
     expect(result.code).toBe("UNSUPPORTED_AREA");
     expect(result.field).toBe("targetArea");
+  });
+});
+
+describe("tool metadata", () => {
+  it("defines PlayMCP-compatible descriptions and annotations", () => {
+    const registeredTools: Array<{
+      name: string;
+      config: {
+        description?: string;
+        annotations?: Record<string, unknown>;
+      };
+    }> = [];
+
+    const server = {
+      registerTool(name: string, config: { description?: string; annotations?: Record<string, unknown> }) {
+        registeredTools.push({ name, config });
+      }
+    } as unknown as McpServer;
+
+    registerTools(server);
+
+    expect(registeredTools.map((tool) => tool.name)).toEqual([
+      "get_area_status",
+      "find_good_places_now",
+      "recommend_outing_plan"
+    ]);
+
+    for (const tool of registeredTools) {
+      expect(tool.config.description).toContain("오늘갈까");
+      expect(tool.config.annotations).toMatchObject({
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      });
+    }
   });
 });
