@@ -17,6 +17,36 @@ export const seoulCityDataAreas: Record<AreaKey, SeoulCityDataArea> = {
   },
   gwanghwamun: {
     providerAreaName: "광화문·덕수궁"
+  },
+  gangnam: {
+    providerAreaName: "강남역"
+  },
+  myeongdong: {
+    providerAreaName: "명동 관광특구"
+  },
+  ddp: {
+    providerAreaName: "DDP(동대문디자인플라자)"
+  },
+  "seoul-station": {
+    providerAreaName: "서울역"
+  },
+  itaewon: {
+    providerAreaName: "이태원 관광특구"
+  },
+  bukchon: {
+    providerAreaName: "북촌한옥마을"
+  },
+  coex: {
+    providerAreaName: "강남 MICE 관광특구"
+  },
+  namsan: {
+    providerAreaName: "남산공원"
+  },
+  geondae: {
+    providerAreaName: "건대입구역"
+  },
+  "express-bus-terminal": {
+    providerAreaName: "고속터미널역"
   }
 };
 

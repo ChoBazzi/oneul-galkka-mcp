@@ -1,4 +1,19 @@
-export type AreaKey = "seoul-forest" | "hongdae" | "yeouido" | "jamsil" | "gwanghwamun";
+export type AreaKey =
+  | "seoul-forest"
+  | "hongdae"
+  | "yeouido"
+  | "jamsil"
+  | "gwanghwamun"
+  | "gangnam"
+  | "myeongdong"
+  | "ddp"
+  | "seoul-station"
+  | "itaewon"
+  | "bukchon"
+  | "coex"
+  | "namsan"
+  | "geondae"
+  | "express-bus-terminal";
 
 export type CrowdLevel = "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH";
 
@@ -67,6 +82,12 @@ export interface OutingPlan {
   durationMinutes: number;
   score: number;
   summary: string;
+  chatSummary?: string;
+  shareCard?: {
+    title: string;
+    subtitle: string;
+    bullets: string[];
+  };
   stops: Array<{
     name: string;
     type: PlaceType;

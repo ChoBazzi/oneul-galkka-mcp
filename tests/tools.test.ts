@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerTools } from "../src/tools/registerTools.js";
-import { handleGetAreaStatus, handleRecommendOutingPlan } from "../src/tools/handlers.js";
+import {
+  handleCheckOutingRisk,
+  handleFindEventsNow,
+  handleGetAreaStatus,
+  handleRecommendOutingPlan
+} from "../src/tools/handlers.js";
 
 async function parseToolText(result: Promise<{ content: Array<{ type: "text"; text: string }> }>) {
   const resolved = await result;
@@ -19,6 +24,26 @@ describe("tool handlers", () => {
 
     expect(result.ok).toBe(false);
     expect(result.supportedAreas).toContain("성수/서울숲");
+    expect(result.supportedAreas).toContain("강남역");
+    expect(result.supportedAreas).toContain("DDP/동대문");
+  });
+
+  it("supports expanded Seoul areas", async () => {
+    const statusResult = await parseToolText(handleGetAreaStatus({ areaName: "강남" }));
+    const planResult = await parseToolText(
+      handleRecommendOutingPlan({
+        originArea: "서울역",
+        targetArea: "DDP",
+        companion: "friends",
+        durationHours: 3,
+        mood: "전시"
+      })
+    );
+
+    expect(statusResult.ok).toBe(true);
+    expect((statusResult.status as { areaName?: string }).areaName).toBe("강남역");
+    expect(planResult.ok).toBe(true);
+    expect((planResult.recommendation as { areaName?: string }).areaName).toBe("DDP/동대문");
   });
 
   it("returns a primary recommendation and alternatives", async () => {
@@ -64,6 +89,43 @@ describe("tool handlers", () => {
     expect(result.code).toBe("UNSUPPORTED_AREA");
     expect(result.field).toBe("targetArea");
   });
+
+  it("returns event lookup results for a supported area", async () => {
+    const result = await parseToolText(handleFindEventsNow({ areaName: "광화문", freeOnly: false, limit: 5 }));
+
+    expect(result.ok).toBe(true);
+    expect(result.areaName).toBe("광화문");
+    expect(Array.isArray(result.events)).toBe(true);
+    expect(result.note).toContain("서울 열린데이터광장 API");
+  });
+
+  it("rejects unsupported areas for event lookup", async () => {
+    const result = await parseToolText(handleFindEventsNow({ areaName: "부산" }));
+
+    expect(result.ok).toBe(false);
+    expect(result.code).toBe("UNSUPPORTED_AREA");
+    expect(result.field).toBe("areaName");
+  });
+
+  it("returns an outing risk decision for a supported area", async () => {
+    const result = await parseToolText(handleCheckOutingRisk({ areaName: "여의도" }));
+
+    expect(result.ok).toBe(true);
+    expect(result.areaName).toBe("여의도");
+    expect(["GO", "CAUTION", "AVOID"]).toContain(result.decision);
+    expect(typeof result.riskScore).toBe("number");
+    expect(Array.isArray(result.reasons)).toBe(true);
+    expect(Array.isArray(result.warnings)).toBe(true);
+    expect(Array.isArray(result.alternatives)).toBe(true);
+  });
+
+  it("rejects unsupported areas for risk checks", async () => {
+    const result = await parseToolText(handleCheckOutingRisk({ areaName: "부산" }));
+
+    expect(result.ok).toBe(false);
+    expect(result.code).toBe("UNSUPPORTED_AREA");
+    expect(result.field).toBe("areaName");
+  });
 });
 
 describe("tool metadata", () => {
@@ -86,6 +148,8 @@ describe("tool metadata", () => {
 
     expect(registeredTools.map((tool) => tool.name)).toEqual([
       "get_area_status",
+      "check_outing_risk",
+      "find_events_now",
       "find_good_places_now",
       "recommend_outing_plan"
     ]);

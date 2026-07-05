@@ -107,5 +107,18 @@ describe("outing recommendations", () => {
       }
     ]);
     expect(plans[0].reasons.join(" ")).toContain("실시간 문화행사 2개 확인");
+    expect(plans[0].chatSummary).toContain("광화문/종로");
+    expect(plans[0].chatSummary).toContain("서울 문화의 밤");
+    expect(plans[0].chatSummary).toContain("실시간 문화행사 2개");
+    expect(plans[0].chatSummary).toContain("코스를 추천해요");
+    expect(plans[0].shareCard).toEqual({
+      title: "광화문/종로 실내 중심 코스",
+      subtitle: "2시간 · 혼잡도 LOW · 행사 2개",
+      bullets: expect.arrayContaining([
+        "실시간 문화행사 2개 확인",
+        "서울 문화의 밤",
+        "date 동행 조건에 맞음"
+      ])
+    });
   });
 });

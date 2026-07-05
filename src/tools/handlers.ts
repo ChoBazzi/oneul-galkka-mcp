@@ -4,7 +4,9 @@ import {
   resolveAreaStatus,
   resolveAreaStatuses
 } from "../services/areaStatusService.js";
+import { findEventsNow } from "../recommendation/eventFinder.js";
 import { findGoodPlacesNow, recommendOutingPlans, type FindCandidatesInput } from "../recommendation/planBuilder.js";
+import { evaluateOutingRisk } from "../recommendation/riskEvaluator.js";
 import type { RecommendationInput } from "../types.js";
 
 function asTextJson(value: unknown) {
@@ -46,6 +48,26 @@ export async function handleGetAreaStatus(input: { areaName: string }) {
   });
 }
 
+export async function handleCheckOutingRisk(input: { areaName: string }) {
+  const status = await resolveAreaStatus(input.areaName);
+
+  if (!status) {
+    return unsupportedAreaResponse(input.areaName, "areaName");
+  }
+
+  const liveStatuses = await resolveAreaStatuses();
+  const risk = evaluateOutingRisk(status, liveStatuses);
+
+  return asTextJson({
+    ok: true,
+    ...risk,
+    note:
+      status.source === "seed"
+        ? "현재 리스크 판단은 seed fallback 데이터 기반입니다. 서울 열린데이터광장 API 연결 후 실시간 값으로 교체됩니다."
+        : "서울 열린데이터광장 기반 실시간 리스크 판단입니다."
+  });
+}
+
 export async function handleFindGoodPlacesNow(input: FindCandidatesInput) {
   if (!findAreaStatus(input.originArea)) {
     return unsupportedAreaResponse(input.originArea, "originArea");
@@ -78,6 +100,36 @@ export async function handleFindGoodPlacesNow(input: FindCandidatesInput) {
     ok: true,
     originArea: input.originArea,
     candidates
+  });
+}
+
+export async function handleFindEventsNow(input: { areaName?: string; freeOnly?: boolean; limit?: number }) {
+  if (input.areaName && !findAreaStatus(input.areaName)) {
+    return unsupportedAreaResponse(input.areaName, "areaName");
+  }
+
+  const liveStatuses = await resolveAreaStatuses(input.areaName ? [input.areaName] : undefined);
+  const events = findEventsNow({
+    ...input,
+    areaStatuses: liveStatuses
+  });
+  const hasSeedFallback = liveStatuses.some((status) => status.source === "seed");
+
+  return asTextJson({
+    ok: true,
+    areaName: input.areaName ?? "전체 지원 권역",
+    freeOnly: input.freeOnly ?? false,
+    events,
+    eventCount: events.length,
+    areasChecked: liveStatuses.map((status) => ({
+      areaName: status.areaName,
+      source: status.source,
+      liveEventCount: status.liveEventCount,
+      updatedAt: status.updatedAt
+    })),
+    note: hasSeedFallback
+      ? "서울 열린데이터광장 API 키가 없거나 호출에 실패하면 seed fallback에서는 행사 상세가 제한될 수 있습니다."
+      : "서울 열린데이터광장 기반 실시간 행사 상세입니다."
   });
 }
 

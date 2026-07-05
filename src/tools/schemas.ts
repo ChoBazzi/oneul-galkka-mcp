@@ -8,6 +8,16 @@ export const getAreaStatusInputSchema = {
   areaName: z.string().min(1).describe("확인할 서울 권역 이름. 예: 성수, 여의도, 광화문")
 };
 
+export const checkOutingRiskInputSchema = {
+  areaName: z.string().min(1).describe("외출 리스크를 판단할 서울 권역 이름. 예: 여의도, 홍대, 광화문")
+};
+
+export const findEventsNowInputSchema = {
+  areaName: z.string().min(1).optional().describe("행사를 찾을 서울 권역 이름. 없으면 지원 권역 전체에서 검색"),
+  freeOnly: z.boolean().default(false).describe("무료 행사만 볼지 여부"),
+  limit: z.number().int().min(1).max(10).default(5).describe("반환할 최대 행사 수")
+};
+
 export const findGoodPlacesNowInputSchema = {
   originArea: z.string().min(1).describe("출발 권역. 예: 성수, 잠실, 광화문"),
   companion: companionSchema,

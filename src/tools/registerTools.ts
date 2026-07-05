@@ -1,10 +1,18 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
+  checkOutingRiskInputSchema,
+  findEventsNowInputSchema,
   findGoodPlacesNowInputSchema,
   getAreaStatusInputSchema,
   recommendOutingPlanInputSchema
 } from "./schemas.js";
-import { handleFindGoodPlacesNow, handleGetAreaStatus, handleRecommendOutingPlan } from "./handlers.js";
+import {
+  handleCheckOutingRisk,
+  handleFindEventsNow,
+  handleFindGoodPlacesNow,
+  handleGetAreaStatus,
+  handleRecommendOutingPlan
+} from "./handlers.js";
 
 const readOnlyLiveContextAnnotations = {
   readOnlyHint: true,
@@ -23,6 +31,28 @@ export function registerTools(server: McpServer) {
       annotations: readOnlyLiveContextAnnotations
     },
     async (input) => handleGetAreaStatus(input)
+  );
+
+  server.registerTool(
+    "check_outing_risk",
+    {
+      description:
+        "오늘갈까: 서울 권역의 현재 혼잡도, 날씨, 대기질, 대중교통 부담을 종합해 지금 가도 되는지 GO, CAUTION, AVOID로 판단합니다.",
+      inputSchema: checkOutingRiskInputSchema,
+      annotations: readOnlyLiveContextAnnotations
+    },
+    async (input) => handleCheckOutingRisk(input)
+  );
+
+  server.registerTool(
+    "find_events_now",
+    {
+      description:
+        "오늘갈까: 서울 주요 권역의 실시간 문화행사를 찾습니다. 권역, 무료 여부, 반환 개수를 기준으로 현재 확인 가능한 행사 상세를 반환합니다.",
+      inputSchema: findEventsNowInputSchema,
+      annotations: readOnlyLiveContextAnnotations
+    },
+    async (input) => handleFindEventsNow(input)
   );
 
   server.registerTool(
