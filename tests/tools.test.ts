@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerTools } from "../src/tools/registerTools.js";
+import { SeoulOpenDataClient } from "../src/services/seoulOpenDataClient.js";
+import { resolveLiveAreaStatuses } from "../src/services/areaStatusService.js";
 import {
   handleCheckOutingRisk,
   handleFindEventsNow,
@@ -93,10 +95,14 @@ describe("tool handlers", () => {
   it("returns event lookup results for a supported area", async () => {
     const result = await parseToolText(handleFindEventsNow({ areaName: "광화문", freeOnly: false, limit: 5 }));
 
-    expect(result.ok).toBe(true);
+    expect(result.ok).toBe(false);
+    expect(result.code).toBe("LIVE_DATA_API_KEY_MISSING");
     expect(result.areaName).toBe("광화문");
     expect(Array.isArray(result.events)).toBe(true);
-    expect(result.note).toContain("서울 열린데이터광장 API");
+    expect(result.requiresLiveData).toBe(true);
+    expect(result.retryable).toBe(false);
+    expect(result.message).toContain("실시간 행사 목록");
+    expect(result.message).toContain("API 키");
   });
 
   it("rejects unsupported areas for event lookup", async () => {
@@ -105,6 +111,25 @@ describe("tool handlers", () => {
     expect(result.ok).toBe(false);
     expect(result.code).toBe("UNSUPPORTED_AREA");
     expect(result.field).toBe("areaName");
+  });
+
+  it("explains live event connection failures without falling back to mock events", async () => {
+    const result = await resolveLiveAreaStatuses(["광화문"], {
+      client: new SeoulOpenDataClient({
+        apiKey: "test-key",
+        fetchImpl: async () => {
+          throw new Error("network down");
+        }
+      })
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.code).toBe("LIVE_DATA_REQUEST_FAILED");
+      expect(result.retryable).toBe(true);
+      expect(result.message).toContain("잠시 후 다시 시도");
+      expect(result.statuses[0].source).toBe("seed");
+    }
   });
 
   it("returns an outing risk decision for a supported area", async () => {

@@ -85,6 +85,19 @@ export interface ResolveAreaStatusOptions {
   client?: SeoulOpenDataClient;
 }
 
+export type ResolveLiveAreaStatusesResult =
+  | {
+      ok: true;
+      statuses: AreaStatus[];
+    }
+  | {
+      ok: false;
+      code: "LIVE_DATA_API_KEY_MISSING" | "LIVE_DATA_REQUEST_FAILED";
+      message: string;
+      retryable: boolean;
+      statuses: AreaStatus[];
+    };
+
 export async function resolveAreaStatus(
   areaName: string,
   options: ResolveAreaStatusOptions = {}
@@ -118,4 +131,44 @@ export async function resolveAreaStatuses(
   const statuses = await Promise.all(targets.map((areaName) => resolveAreaStatus(areaName, options)));
 
   return statuses.filter((status): status is AreaStatus => Boolean(status));
+}
+
+export async function resolveLiveAreaStatuses(
+  areaNames?: string[],
+  options: ResolveAreaStatusOptions = {}
+): Promise<ResolveLiveAreaStatusesResult> {
+  const seeds = (areaNames?.length ? areaNames : listSupportedAreaNames())
+    .map((areaName) => findAreaStatus(areaName))
+    .filter((status): status is AreaStatus => Boolean(status));
+  const client = options.client ?? new SeoulOpenDataClient();
+
+  if (!client.hasApiKey) {
+    return {
+      ok: false,
+      code: "LIVE_DATA_API_KEY_MISSING",
+      message: "실시간 행사 목록을 조회하려면 서울 열린데이터 API 키가 필요합니다.",
+      retryable: false,
+      statuses: seeds
+    };
+  }
+
+  try {
+    const statuses = await Promise.all(
+      seeds.map((seed) => client.fetchAreaStatus(seed, seoulCityDataAreas[seed.areaKey]))
+    );
+
+    return {
+      ok: true,
+      statuses
+    };
+  } catch (error) {
+    console.error("Seoul live event data request failed:", error);
+    return {
+      ok: false,
+      code: "LIVE_DATA_REQUEST_FAILED",
+      message: "서울 열린데이터 API 연결에 실패했습니다. 지금은 실시간 행사 목록을 제공할 수 없으니 잠시 후 다시 시도해 주세요.",
+      retryable: true,
+      statuses: seeds
+    };
+  }
 }

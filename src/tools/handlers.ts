@@ -2,7 +2,8 @@ import {
   findAreaStatus,
   listSupportedAreaNames,
   resolveAreaStatus,
-  resolveAreaStatuses
+  resolveAreaStatuses,
+  resolveLiveAreaStatuses
 } from "../services/areaStatusService.js";
 import { findEventsNow } from "../recommendation/eventFinder.js";
 import { findGoodPlacesNow, recommendOutingPlans, type FindCandidatesInput } from "../recommendation/planBuilder.js";
@@ -108,28 +109,56 @@ export async function handleFindEventsNow(input: { areaName?: string; freeOnly?:
     return unsupportedAreaResponse(input.areaName, "areaName");
   }
 
-  const liveStatuses = await resolveAreaStatuses(input.areaName ? [input.areaName] : undefined);
+  const liveStatusResult = await resolveLiveAreaStatuses(input.areaName ? [input.areaName] : undefined);
+  if (!liveStatusResult.ok) {
+    return asTextJson({
+      ok: false,
+      code: liveStatusResult.code,
+      areaName: input.areaName ?? "전체 지원 권역",
+      freeOnly: input.freeOnly ?? false,
+      events: [],
+      eventCount: 0,
+      requiresLiveData: true,
+      retryable: liveStatusResult.retryable,
+      emptyReason: liveStatusResult.message,
+      message: liveStatusResult.message,
+      areasChecked: liveStatusResult.statuses.map((status) => ({
+        areaName: status.areaName,
+        source: status.source,
+        liveEventCount: status.liveEventCount,
+        hasLiveEventDetails: Boolean(status.liveEvents?.length),
+        updatedAt: status.updatedAt
+      }))
+    });
+  }
+
+  const liveStatuses = liveStatusResult.statuses;
   const events = findEventsNow({
     ...input,
     areaStatuses: liveStatuses
   });
-  const hasSeedFallback = liveStatuses.some((status) => status.source === "seed");
+  const areasChecked = liveStatuses.map((status) => ({
+    areaName: status.areaName,
+    source: status.source,
+    liveEventCount: status.liveEventCount,
+    hasLiveEventDetails: Boolean(status.liveEvents?.length),
+    updatedAt: status.updatedAt
+  }));
+
+  const noMatchingEvents = events.length === 0;
 
   return asTextJson({
     ok: true,
+    code: noMatchingEvents ? "NO_MATCHING_EVENTS" : "OK",
     areaName: input.areaName ?? "전체 지원 권역",
     freeOnly: input.freeOnly ?? false,
     events,
     eventCount: events.length,
-    areasChecked: liveStatuses.map((status) => ({
-      areaName: status.areaName,
-      source: status.source,
-      liveEventCount: status.liveEventCount,
-      updatedAt: status.updatedAt
-    })),
-    note: hasSeedFallback
-      ? "서울 열린데이터광장 API 키가 없거나 호출에 실패하면 seed fallback에서는 행사 상세가 제한될 수 있습니다."
-      : "서울 열린데이터광장 기반 실시간 행사 상세입니다."
+    emptyReason: noMatchingEvents
+      ? "실시간 데이터 조회는 성공했지만 요청한 권역 또는 필터 조건에 맞는 행사 상세가 없습니다."
+      : undefined,
+    areasChecked,
+    note: "서울 열린데이터광장 기반 실시간 행사 상세입니다."
   });
 }
 
