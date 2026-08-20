@@ -1,6 +1,7 @@
 {
   "name": "oneul-galkka-mcp",
   "version": "0.1.0",
+  "license": "MIT",
   "description": "MCP server recommending Seoul outing plans using live city context and public-data-friendly seed data.",
   "type": "module",
   "bin": {

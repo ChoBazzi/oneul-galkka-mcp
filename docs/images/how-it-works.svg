@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1135.4629999999997 125.80000000000001" width="1135.4629999999997" height="125.80000000000001" style="--bg:#F8FAFC;--fg:#172033;--line:#64748B;--accent:#0F766E;--muted:#475569;--surface:#FFFFFF;--border:#94A3B8;background:var(--bg)">
+<style>
+  text { font-family: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  .edge { stroke: #64748B !important; }
+  .node rect { fill: #FFFFFF !important; stroke: #94A3B8 !important; }
+  .node text { fill: #172033 !important; }
+  marker polygon { fill: #0F766E !important; stroke: #0F766E !important; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<rect width="100%" height="100%" fill="#F8FAFC" />
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="5" refX="7" refY="2.5" orient="auto">
+    <polygon points="0 0, 8 2.5, 0 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="5" refX="1" refY="2.5" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.5, 8 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+</defs>
+<polyline class="edge" data-from="Q" data-to="M" data-style="solid" data-arrow-start="false" data-arrow-end="true" points="220.22199999999998,62.900000000000006 268.222,62.900000000000006" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="M" data-to="D" data-style="solid" data-arrow-start="false" data-arrow-end="true" points="418.35799999999995,62.900000000000006 466.35799999999995,62.900000000000006" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="D" data-to="A" data-style="solid" data-arrow-start="false" data-arrow-end="true" points="662.4359999999999,62.900000000000006 710.4359999999999,62.900000000000006" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="A" data-to="R" data-style="solid" data-arrow-start="false" data-arrow-end="true" points="888.7299999999998,62.900000000000006 936.7299999999998,62.900000000000006" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<g class="node" data-id="Q" data-label="1. 카카오톡 질문
+출발지 · 동행자 · 시간" data-shape="rectangle">
+  <rect x="36" y="36" width="184.22199999999998" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="128.111" y="62.900000000000006" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="128.111" dy="-3.9000000000000012">1. 카카오톡 질문</tspan><tspan x="128.111" dy="16.900000000000002">출발지 · 동행자 · 시간</tspan></text>
+</g>
+<g class="node" data-id="M" data-label="2. 오늘갈까 MCP
+조건과 의도 파악" data-shape="rectangle">
+  <rect x="268.222" y="36" width="150.136" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="343.28999999999996" y="62.900000000000006" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="343.28999999999996" dy="-3.9000000000000012">2. 오늘갈까 MCP</tspan><tspan x="343.28999999999996" dy="16.900000000000002">조건과 의도 파악</tspan></text>
+</g>
+<g class="node" data-id="D" data-label="3. 서울 도시데이터
+혼잡 · 날씨 · 교통 · 행사" data-shape="rectangle">
+  <rect x="466.35799999999995" y="36" width="196.078" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="564.3969999999999" y="62.900000000000006" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="564.3969999999999" dy="-3.9000000000000012">3. 서울 도시데이터</tspan><tspan x="564.3969999999999" dy="16.900000000000002">혼잡 · 날씨 · 교통 · 행사</tspan></text>
+</g>
+<g class="node" data-id="A" data-label="4. 외출 조건 분석
+GO · CAUTION · AVOID" data-shape="rectangle">
+  <rect x="710.4359999999999" y="36" width="178.29399999999993" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="799.5829999999999" y="62.900000000000006" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="799.5829999999999" dy="-3.9000000000000012">4. 외출 조건 분석</tspan><tspan x="799.5829999999999" dy="16.900000000000002">GO · CAUTION · AVOID</tspan></text>
+</g>
+<g class="node" data-id="R" data-label="5. 실행 가능한 답변
+코스 · 이유 · 대안" data-shape="rectangle">
+  <rect x="936.7299999999998" y="36" width="162.733" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="1018.0964999999998" y="62.900000000000006" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="1018.0964999999998" dy="-3.9000000000000012">5. 실행 가능한 답변</tspan><tspan x="1018.0964999999998" dy="16.900000000000002">코스 · 이유 · 대안</tspan></text>
+</g>
+</svg>
