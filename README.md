@@ -31,7 +31,6 @@
 
 ![오늘갈까 MCP 동작 방식](docs/images/how-it-works.svg)
 
-[다이어그램 원본](docs/diagrams/how-it-works.mmd)
 
 ## 제공 도구
 
